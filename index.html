@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CS2 Shot Case Opener</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+    body { background-color: #0b0e14; color: #ffffff; padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 70px; }
+    
+    /* Header - Balans va Admin tugmasi */
+    .header { width: 100%; max-width: 450px; display: flex; justify-content: space-between; align-items: center; background: #151922; padding: 12px 16px; border-radius: 14px; margin-bottom: 15px; border: 1px solid #232a3b; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .balance-container { display: flex; flex-direction: column; }
+    .balance-label { font-size: 11px; color: #8892a6; font-weight: 600; text-transform: uppercase; }
+    .balance-box { font-size: 18px; font-weight: 800; color: #f39c12; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .btn-admin { background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; color: white; padding: 10px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3); transition: transform 0.1s; }
+    .btn-admin:active { transform: scale(0.95); }
+
+    /* Case Kartochkasi */
+    .case-card { background: #151922; border: 1px solid #232a3b; border-radius: 16px; padding: 16px; text-align: center; width: 100%; max-width: 450px; margin-bottom: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+    .case-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; background: linear-gradient(90deg, #fff, #8892a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .case-price { font-size: 14px; color: #f39c12; font-weight: 700; margin-bottom: 15px; }
+
+    /* Ruletka Oynasi */
+    .roulette-container { position: relative; width: 100%; height: 130px; overflow: hidden; background: #080a0f; border-radius: 12px; border: 2px solid #232a3b; margin-bottom: 15px; }
+    .pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #e74c3c; transform: translateX(-50%); z-index: 10; box-shadow: 0 0 12px #e74c3c; }
+    .pointer::before, .pointer::after { content: ''; position: absolute; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; }
+    .pointer::before { top: 0; border-top: 10px solid #e74c3c; }
+    .pointer::after { bottom: 0; border-bottom: 10px solid #e74c3c; }
+    
+    .track { display: flex; position: absolute; left: 0; top: 10px; height: 110px; transition: transform 4s cubic-bezier(0.08, 0.82, 0.17, 1); }
+    
+    /* Skin Kartochkalari */
+    .card { min-width: 100px; max-width: 100px; height: 110px; background: #1c2230; margin: 0 4px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 5px; text-align: center; border-bottom: 4px solid #7f8c8d; position: relative; }
+    .card img { width: 70px; height: 50px; object-fit: contain; margin-top: 5px; }
+    .card .name { font-size: 10px; font-weight: 700; color: #e1e6f0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+    .card .price { font-size: 10px; color: #f39c12; font-weight: 700; }
+
+    /* Rarity (Kamyoblik) Ranglari */
+    .rarity-gold { border-bottom-color: #ffd700 !important; background: linear-gradient(180deg, #1c2230 0%, #4a3b00 100%); }
+    .rarity-red { border-bottom-color: #eb4b4b !important; background: linear-gradient(180deg, #1c2230 0%, #4a1515 100%); }
+    .rarity-pink { border-bottom-color: #d32ce6 !important; background: linear-gradient(180deg, #1c2230 0%, #3e1245 100%); }
+    .rarity-purple { border-bottom-color: #8847ff !important; background: linear-gradient(180deg, #1c2230 0%, #29154a 100%); }
+    .rarity-blue { border-bottom-color: #4b69ff !important; background: linear-gradient(180deg, #1c2230 0%, #151d4a 100%); }
+
+    /* Tugma */
+    .btn-open { width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; color: white; padding: 14px; font-size: 16px; font-weight: 800; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+    .btn-open:active { transform: scale(0.98); }
+    .btn-open:disabled { background: #2c3345; color: #64748b; cursor: not-allowed; box-shadow: none; }
+
+    /* Inventar Bo'limi */
+    .inventory { width: 100%; max-width: 450px; background: #151922; border: 1px solid #232a3b; border-radius: 16px; padding: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+    .inv-title { font-size: 15px; margin-bottom: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; }
+    .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
+    .inv-grid::-webkit-scrollbar { width: 4px; }
+    .inv-grid::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Pastki Menyular (Shot Bot navigation) */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #11141c; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #232a3b; z-index: 100; }
+    .nav-item { color: #64748b; text-decoration: none; font-size: 11px; font-weight: 600; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .nav-item.active { color: #3b82f6; }
+    .nav-icon { font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="balance-container">
+      <span class="balance-label">Balansingiz</span>
+      <div class="balance-box">🪙 <span id="balance">100 000</span></div>
+    </div>
+    <button class="btn-admin" onclick="addAdminCoins()">+1 000 000 Coin ⚡</button>
+  </div>
+
+  <!-- Main Case Area -->
+  <div class="case-card">
+    <div class="case-title">Olympus Case</div>
+    <div class="case-price">Ochish narxi: 🪙 10 000</div>
+
+    <div class="roulette-container">
+      <div class="pointer"></div>
+      <div class="track" id="track"></div>
+    </div>
+
+    <button class="btn-open" id="openBtn" onclick="openCase()">KEYSNI OCHISH</button>
+  </div>
+
+  <!-- Inventory -->
+  <div class="inventory">
+    <div class="inv-title">
+      <span>🎒 Inventaringiz</span>
+      <span id="invCount" style="color: #64748b; font-size: 12px;">0 buyum</span>
+    </div>
+    <div class="inv-grid" id="inventory"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="#" class="nav-item"><span class="nav-icon">🏠</span>Asosiy</a>
+    <a href="#" class="nav-item active"><span class="nav-icon">📦</span>Keyslar</a>
+    <a href="#" class="nav-item"><span class="nav-icon">🎮</span>O'yinlar</a>
+    <a href="#" class="nav-item"><span class="nav-icon">🎒</span>Inventar</a>
+    <a href="#" class="nav-item"><span class="nav-icon">⚙️</span>Sozlamalar</a>
+  </div>
+
+  <script>
+    // Telegram WebApp kengaytirish
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    let coins = parseInt(localStorage.getItem('user_coins')) || 100000;
+    const casePrice = 10000;
+    let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+
+    // CS2 Skinlar Ro'yxati (Nomi, Narxi, Tushish %-i va Rasmlari)
+    const items = [
+      { id: 1, name: "Karambit | Doppler", price: 28000000, chance: 0.5, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
+      { id: 2, name: "Butterfly | Slaughter", price: 25000000, chance: 1.0, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
+      { id: 3, name: "M9 Bayonet | Doppler", price: 21000000, chance: 1.5, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
+      { id: 4, name: "AWP | BOOM", price: 2300000, chance: 7.0, rarity: "pink", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
+      { id: 5, name: "AK-47 | Redline", price: 500000, chance: 20.0, rarity: "purple", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
+      { id: 6, name: "USP-S | Cyrex", price: 120000, chance: 70.0, rarity: "blue", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" }
+    ];
+
+    // Coins qo'shish (Admin uchun)
+    function addAdminCoins() {
+      coins += 1000000;
+      saveData();
+      updateUI();
+    }
+
+    function saveData() {
+      localStorage.setItem('user_coins', coins);
+      localStorage.setItem('user_inventory', JSON.stringify(inventory));
+    }
+
+    function updateUI() {
+      document.getElementById('balance').innerText = coins.toLocaleString();
+    }
+
+    // Tasodifiy skin tanlash (Drop Chance bo'yicha)
+    function getRandomItem() {
+      let rand = Math.random() * 100;
+      let cumulative = 0;
+      for (let item of items) {
+        cumulative += item.chance;
+        if (rand <= cumulative) return item;
+      }
+      return items[items.length - 1];
+    }
+
+    // Ruletka tasmasini to'ldirish
+    const track = document.getElementById('track');
+    function initTrack() {
+      track.innerHTML = '';
+      for (let i = 0; i < 60; i++) {
+        let item = getRandomItem();
+        let card = createCardElement(item);
+        track.appendChild(card);
+      }
+    }
+
+    function createCardElement(item) {
+      let card = document.createElement('div');
+      card.className = `card rarity-${item.rarity}`;
+      card.innerHTML = `
+        <img src="${item.img}" alt="skin" onerror="this.src='https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f'">
+        <div class="name">${item.name}</div>
+        <div class="price">🪙 ${item.price.toLocaleString()}</div>
+      `;
+      return card;
+    }
+
+    // Keys Ochish Animatsiyasi
+    function openCase() {
+      if (coins < casePrice) {
+        alert("Coin yetarli emas! Tepadagi '+1 000 000 Coin ⚡' tugmasini bosing.");
+        return;
+      }
+
+      coins -= casePrice;
+      saveData();
+      updateUI();
+
+      const btn = document.getElementById('openBtn');
+      btn.disabled = true;
+
+      // Ruletkani joyiga qaytarish
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0px)';
+
+      const winIndex = 45; // 45-karta yutuq bo'ladi
+      const winItem = getRandomItem();
+
+      setTimeout(() => {
+        // Yutuq kartasini qo'yish
+        const cards = track.children;
+        cards[winIndex].className = `card rarity-${winItem.rarity}`;
+        cards[winIndex].innerHTML = `
+          <img src="${winItem.img}" alt="skin">
+          <div class="name">${winItem.name}</div>
+          <div class="price">🪙 ${winItem.price.toLocaleString()}</div>
+        `;
+
+        // Surilish masofasi (Karta kengligi = 108px)
+        const cardWidth = 108;
+        const containerWidth = document.querySelector('.roulette-container').offsetWidth;
+        const targetPos = (winIndex * cardWidth) - (containerWidth / 2) + (cardWidth / 2);
+
+        track.style.transition = 'transform 4s cubic-bezier(0.08, 0.82, 0.17, 1)';
+        track.style.transform = `translateX(-${targetPos}px)`;
+      }, 50);
+
+      // Yutuqni saqlash
+      setTimeout(() => {
+        inventory.unshift(winItem);
+        saveData();
+        renderInventory();
+        btn.disabled = false;
+        initTrack();
+      }, 4200);
+    }
+
+    // Inventarni ko'rsatish
+    function renderInventory() {
+      const invContainer = document.getElementById('inventory');
+      document.getElementById('invCount').innerText = `${inventory.length} buyum`;
+      invContainer.innerHTML = '';
+
+      inventory.forEach(item => {
+        let card = createCardElement(item);
+        invContainer.appendChild(card);
+      });
+    }
+
+    // Boshlang'ich yuklash
+    updateUI();
+    initTrack();
+    renderInventory();
+  </script>
+</body>
+</html>
