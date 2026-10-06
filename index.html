@@ -3,245 +3,471 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CS2 Shot Case Opener</title>
-  <!-- Telegram WebApp SDK -->
+  <title>CS2 Ultimate - Cases, Upgrade & Contract</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-    body { background-color: #0b0e14; color: #ffffff; padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 70px; }
-    
-    /* Header - Balans va Admin tugmasi */
-    .header { width: 100%; max-width: 450px; display: flex; justify-content: space-between; align-items: center; background: #151922; padding: 12px 16px; border-radius: 14px; margin-bottom: 15px; border: 1px solid #232a3b; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .balance-container { display: flex; flex-direction: column; }
-    .balance-label { font-size: 11px; color: #8892a6; font-weight: 600; text-transform: uppercase; }
-    .balance-box { font-size: 18px; font-weight: 800; color: #f39c12; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-    .btn-admin { background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; color: white; padding: 10px 14px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3); transition: transform 0.1s; }
-    .btn-admin:active { transform: scale(0.95); }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+    }
 
-    /* Case Kartochkasi */
-    .case-card { background: #151922; border: 1px solid #232a3b; border-radius: 16px; padding: 16px; text-align: center; width: 100%; max-width: 450px; margin-bottom: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
-    .case-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; background: linear-gradient(90deg, #fff, #8892a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .case-price { font-size: 14px; color: #f39c12; font-weight: 700; margin-bottom: 15px; }
+    body {
+      background-color: #0b0e14;
+      color: #ffffff;
+      padding-bottom: 75px;
+    }
 
-    /* Ruletka Oynasi */
-    .roulette-container { position: relative; width: 100%; height: 130px; overflow: hidden; background: #080a0f; border-radius: 12px; border: 2px solid #232a3b; margin-bottom: 15px; }
-    .pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #e74c3c; transform: translateX(-50%); z-index: 10; box-shadow: 0 0 12px #e74c3c; }
-    .pointer::before, .pointer::after { content: ''; position: absolute; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; }
-    .pointer::before { top: 0; border-top: 10px solid #e74c3c; }
-    .pointer::after { bottom: 0; border-bottom: 10px solid #e74c3c; }
-    
-    .track { display: flex; position: absolute; left: 0; top: 10px; height: 110px; transition: transform 4s cubic-bezier(0.08, 0.82, 0.17, 1); }
-    
-    /* Skin Kartochkalari */
-    .card { min-width: 100px; max-width: 100px; height: 110px; background: #1c2230; margin: 0 4px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 5px; text-align: center; border-bottom: 4px solid #7f8c8d; position: relative; }
-    .card img { width: 70px; height: 50px; object-fit: contain; margin-top: 5px; }
-    .card .name { font-size: 10px; font-weight: 700; color: #e1e6f0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-    .card .price { font-size: 10px; color: #f39c12; font-weight: 700; }
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #121722;
+      border-bottom: 1px solid #1e2638;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-    /* Rarity (Kamyoblik) Ranglari */
-    .rarity-gold { border-bottom-color: #ffd700 !important; background: linear-gradient(180deg, #1c2230 0%, #4a3b00 100%); }
-    .rarity-red { border-bottom-color: #eb4b4b !important; background: linear-gradient(180deg, #1c2230 0%, #4a1515 100%); }
-    .rarity-pink { border-bottom-color: #d32ce6 !important; background: linear-gradient(180deg, #1c2230 0%, #3e1245 100%); }
-    .rarity-purple { border-bottom-color: #8847ff !important; background: linear-gradient(180deg, #1c2230 0%, #29154a 100%); }
-    .rarity-blue { border-bottom-color: #4b69ff !important; background: linear-gradient(180deg, #1c2230 0%, #151d4a 100%); }
+    .balance-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0b0e14;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #1e2638;
+      font-weight: bold;
+      color: #ffc107;
+      font-size: 14px;
+    }
 
-    /* Tugma */
-    .btn-open { width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; color: white; padding: 14px; font-size: 16px; font-weight: 800; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-    .btn-open:active { transform: scale(0.98); }
-    .btn-open:disabled { background: #2c3345; color: #64748b; cursor: not-allowed; box-shadow: none; }
+    .admin-btn {
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+    }
 
-    /* Inventar Bo'limi */
-    .inventory { width: 100%; max-width: 450px; background: #151922; border: 1px solid #232a3b; border-radius: 16px; padding: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
-    .inv-title { font-size: 15px; margin-bottom: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; }
-    .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
-    .inv-grid::-webkit-scrollbar { width: 4px; }
-    .inv-grid::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    /* Tabs content */
+    .tab-content {
+      display: none;
+      padding: 14px;
+    }
 
-    /* Pastki Menyular (Shot Bot navigation) */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #11141c; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #232a3b; z-index: 100; }
-    .nav-item { color: #64748b; text-decoration: none; font-size: 11px; font-weight: 600; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .nav-item.active { color: #3b82f6; }
-    .nav-icon { font-size: 16px; }
+    .tab-content.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Cases Grid */
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-height: 220px;
+      overflow-y: auto;
+      background: #121722;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #1e2638;
+    }
+
+    .case-card {
+      background: #182030;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .case-card.active {
+      border-color: #3b82f6;
+      background: #1e293b;
+    }
+
+    .case-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .case-card .name {
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .case-card .price {
+      font-size: 11px;
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    /* Roulette Arena */
+    .arena {
+      background: #121722;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #1e2638;
+      text-align: center;
+    }
+
+    .roulette-container {
+      position: relative;
+      width: 100%;
+      height: 110px;
+      background: #0b0e14;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #2a364f;
+      margin: 10px 0;
+    }
+
+    .pointer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: #ef4444;
+      z-index: 10;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px #ef4444;
+    }
+
+    .tape {
+      display: flex;
+      position: absolute;
+      left: 0;
+      top: 8px;
+      transition: transform 5s cubic-bezier(0.1, 1, 0.1, 1);
+    }
+
+    .item-card {
+      min-width: 90px;
+      max-width: 90px;
+      height: 94px;
+      background: #182030;
+      margin: 0 4px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-bottom: 3px solid #555;
+      position: relative;
+    }
+
+    .item-card img {
+      width: 50px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .item-card .item-name {
+      font-size: 8px;
+      text-align: center;
+      margin-top: 4px;
+      font-weight: bold;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .item-card .item-price {
+      font-size: 9px;
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    /* Rarities */
+    .rarity-gold { border-color: #eab308; background: linear-gradient(180deg, #182030, #3a2e05); }
+    .rarity-red { border-color: #ef4444; background: linear-gradient(180deg, #182030, #3a0d0d); }
+    .rarity-pink { border-color: #ec4899; background: linear-gradient(180deg, #182030, #360d38); }
+    .rarity-purple { border-color: #a855f7; background: linear-gradient(180deg, #182030, #220d3a); }
+    .rarity-blue { border-color: #3b82f6; background: linear-gradient(180deg, #182030, #0d1b3a); }
+
+    .btn-action {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Inventory Grid */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sell-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      font-size: 8px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    /* Upgrade Section */
+    .upgrade-box {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .upgrade-slot {
+      flex: 1;
+      background: #121722;
+      border: 2px dashed #2a364f;
+      border-radius: 12px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .upgrade-slot.selected {
+      border-style: solid;
+      border-color: #3b82f6;
+    }
+
+    .chance-badge {
+      background: #1e293b;
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 10px auto;
+      text-align: center;
+      width: fit-content;
+    }
+
+    /* Contract Section */
+    .contract-info {
+      background: #121722;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      text-align: center;
+      border: 1px solid #1e2638;
+    }
+
+    /* Bottom Nav */
+    .navbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #121722;
+      border-top: 1px solid #1e2638;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 10px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #3b82f6;
+    }
+
+    .nav-item span {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
   </style>
 </head>
 <body>
 
   <!-- Header -->
   <div class="header">
-    <div class="balance-container">
-      <span class="balance-label">Balansingiz</span>
-      <div class="balance-box">🪙 <span id="balance">100 000</span></div>
+    <div class="balance-box">
+      🪙 <span id="balance">100,000</span> Coin
     </div>
-    <button class="btn-admin" onclick="addAdminCoins()">+1 000 000 Coin ⚡</button>
+    <button class="admin-btn" onclick="addAdminCoins()">+1M Coin ⚡</button>
   </div>
 
-  <!-- Main Case Area -->
-  <div class="case-card">
-    <div class="case-title">Olympus Case</div>
-    <div class="case-price">Ochish narxi: 🪙 10 000</div>
-
-    <div class="roulette-container">
-      <div class="pointer"></div>
-      <div class="track" id="track"></div>
+  <!-- TAB 1: KEYSLAR -->
+  <div id="tab-cases" class="tab-content active">
+    <div class="section-title">
+      <span>📦 Keycase tanlang (50 ta)</span>
+      <span style="font-size: 12px; color: #3b82f6;" id="case-counter">1/50</span>
     </div>
+    <div class="cases-grid" id="cases-grid"></div>
 
-    <button class="btn-open" id="openBtn" onclick="openCase()">KEYSNI OCHISH</button>
+    <div class="arena">
+      <div style="font-size:16px; font-weight:bold;" id="active-case-name">Kilowatt Case</div>
+      <div style="font-size:12px; color:#ffc107; margin-bottom:8px;">
+        Ochish narxi: 🪙 <span id="active-case-price">5,000</span>
+      </div>
+
+      <div class="roulette-container">
+        <div class="pointer"></div>
+        <div class="tape" id="tape"></div>
+      </div>
+
+      <button class="btn-action" id="open-btn" onclick="openCase()">KEYSNI OCHISH</button>
+    </div>
   </div>
 
-  <!-- Inventory -->
-  <div class="inventory">
-    <div class="inv-title">
-      <span>🎒 Inventaringiz</span>
-      <span id="invCount" style="color: #64748b; font-size: 12px;">0 buyum</span>
+  <!-- TAB 2: UPGRADE -->
+  <div id="tab-upgrade" class="tab-content">
+    <div class="section-title">⚡ Skin Upgrade</div>
+    
+    <div class="upgrade-box">
+      <div class="upgrade-slot" id="upg-input-slot" onclick="openUpgSelect('input')">
+        <span style="font-size:11px; color:#64748b;">Mening Skinim</span>
+        <div id="upg-input-content" style="margin-top:5px;">Sizning skiningizni tanlang</div>
+      </div>
+      <div class="upgrade-slot" id="upg-target-slot" onclick="openUpgSelect('target')">
+        <span style="font-size:11px; color:#64748b;">Maqsad Skin</span>
+        <div id="upg-target-content" style="margin-top:5px;">Olinadigan skinni tanlang</div>
+      </div>
     </div>
-    <div class="inv-grid" id="inventory"></div>
+
+    <div class="chance-badge">Ehtimollik: <span id="upg-chance">0%</span></div>
+
+    <button class="btn-action" id="upg-btn" onclick="runUpgrade()" disabled>UPGRADE QILISH</button>
+  </div>
+
+  <!-- TAB 3: KONTRAKT -->
+  <div id="tab-contract" class="tab-content">
+    <div class="section-title">📜 Trade-up Kontrakt</div>
+    <div class="contract-info">
+      <div>Tanlangan skinlar: <b id="contract-count">0</b> / 10</div>
+      <div style="font-size:11px; color:#ffc107; margin-top:4px;">
+        Umumiy qiymat: 🪙 <span id="contract-total">0</span>
+      </div>
+    </div>
+
+    <button class="btn-action" id="contract-btn" onclick="runContract()" disabled style="margin-bottom:12px;">
+      KONTRAKTNI BAJARISH
+    </button>
+
+    <div class="section-title">Inventardan 10 ta skin tanlang:</div>
+    <div class="inventory-grid" id="contract-inventory"></div>
+  </div>
+
+  <!-- TAB 4: INVENTAR -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="section-title">
+      🎒 Inventaringiz (<span id="inv-count">0</span>)
+    </div>
+    <div class="inventory-grid" id="inventory-grid"></div>
   </div>
 
   <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <a href="#" class="nav-item"><span class="nav-icon">🏠</span>Asosiy</a>
-    <a href="#" class="nav-item active"><span class="nav-icon">📦</span>Keyslar</a>
-    <a href="#" class="nav-item"><span class="nav-icon">🎮</span>O'yinlar</a>
-    <a href="#" class="nav-item"><span class="nav-icon">🎒</span>Inventar</a>
-    <a href="#" class="nav-item"><span class="nav-icon">⚙️</span>Sozlamalar</a>
+  <div class="navbar">
+    <div class="nav-item active" onclick="switchTab('cases', this)"><span>📦</span>Keyslar</div>
+    <div class="nav-item" onclick="switchTab('upgrade', this)"><span>⚡</span>Upgrade</div>
+    <div class="nav-item" onclick="switchTab('contract', this)"><span>📜</span>Kontrakt</div>
+    <div class="nav-item" onclick="switchTab('inventory', this)"><span>🎒</span>Inventar</div>
   </div>
 
   <script>
-    // Telegram WebApp kengaytirish
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    let coins = parseInt(localStorage.getItem('user_coins')) || 100000;
-    const casePrice = 10000;
-    let inventory = JSON.parse(localStorage.getItem('user_inventory')) || [];
+    // Comprehensive Database
+    const globalSkins = [
+      // Knives & Gloves (Gold - Rare)
+      { name: "Karambit | Doppler", price: 25000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/karambit_doppler.png" },
+      { name: "Butterfly | Slaughter", price: 20000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/butterfly_knife_slaughter.png" },
+      { name: "M9 Bayonet | Doppler", price: 18000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/m9_bayonet_doppler.png" },
+      
+      // Covert (Red)
+      { name: "AWP | Dragon Lore", price: 40000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_dragon_lore.png" },
+      { name: "M4A4 | Howl", price: 30000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a4_howl.png" },
+      { name: "AK-47 | Fire Serpent", price: 10000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/ak-47_fire_serpent.png" },
+      
+      // Classified (Pink)
+      { name: "AWP | BOOM", price: 2000000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_boom.png" },
+      { name: "Desert Eagle | Printstream", price: 1200000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/desert_eagle_printstream.png" },
+      { name: "M4A1-S | Hyper Beast", price: 800000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a1-s_hyper_beast.png" },
 
-    // CS2 Skinlar Ro'yxati (Nomi, Narxi, Tushish %-i va Rasmlari)
-    const items = [
-      { id: 1, name: "Karambit | Doppler", price: 28000000, chance: 0.5, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
-      { id: 2, name: "Butterfly | Slaughter", price: 25000000, chance: 1.0, rarity: "gold", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
-      { id: 3, name: "M9 Bayonet | Doppler", price: 21000000, chance: 1.5, rarity: "red", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
-      { id: 4, name: "AWP | BOOM", price: 2300000, chance: 7.0, rarity: "pink", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
-      { id: 5, name: "AK-47 | Redline", price: 500000, chance: 20.0, rarity: "purple", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" },
-      { id: 6, name: "USP-S | Cyrex", price: 120000, chance: 70.0, rarity: "blue", img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f" }
+      // Restricted (Purple)
+      { name: "AK-47 | Redline", price: 450000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/ak-47_redline.png" },
+      { name: "Glock-18 | Water Elemental", price: 120000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/glock-18_water_elemental.png" },
+      { name: "A公正 | Atheris", price: 90000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_atheris.png" },
+
+      // Mil-Spec (Blue - Common)
+      { name: "USP-S | Cyrex", price: 25000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/usp-s_cyrex.png" },
+      { name: "M4A4 | Evil Daimyo", price: 15000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a4_evil_daimyo.png" },
+      { name: "P250 | Valence", price: 8000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/p250_valence.png" },
+      { name: "MP7 | Armor Core", price: 4000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/smgs/mp7_armor_core.png" }
     ];
 
-    // Coins qo'shish (Admin uchun)
-    function addAdminCoins() {
-      coins += 1000000;
-      saveData();
-      updateUI();
-    }
+    // Generate 50 Cases
+    const caseNamesList = [
+      "Kilowatt Case", "Revolution Case", "Recoil Case", "Dreams & Nightmares", "Snakebite Case",
+      "Fracture Case", "Prisma 2 Case", "Prisma Case", "CS20 Case", "Shattered Web Case",
+      "Danger Zone Case", "Horizon Case", "Clutch Case", "Spectrum 2 Case", "Spectrum Case",
+      "Glove Case", "Gamma 2 Case", "Gamma Case", "Chroma 3 Case", "Chroma 2 Case",
+      "Chroma Case", "Operation Phoenix", "Huntsman Case", "Breakout Case", "Vanguard Case",
+      "Operation Bravo", "Winter Offensive", "eSports 2014", "Revolver Case", "Shadow Case",
+      "Falchion Case", "Gallery Case", "Armory Case", "Dragon Lore Case", "Knife Master Case",
+      "Glove Elite Case", "Hyper Beast Case", "Asiimov Special", "Neon Printstream", "Royalty Howl",
+      "Secret Agent Case", "Admin Lucky Case", "CS:GO Weapon Case", "Weapon Case 2", "Weapon Case 3",
+      "Operation Wildfire", "Operation Hydra", "Sticker Capsule", "Modular Case", "Olympus Gods"
+    ];
 
-    function saveData() {
-      localStorage.setItem('user_coins', coins);
-      localStorage.setItem('user_inventory', JSON.stringify(inventory));
-    }
-
-    function updateUI() {
-      document.getElementById('balance').innerText = coins.toLocaleString();
-    }
-
-    // Tasodifiy skin tanlash (Drop Chance bo'yicha)
-    function getRandomItem() {
-      let rand = Math.random() * 100;
-      let cumulative = 0;
-      for (let item of items) {
-        cumulative += item.chance;
-        if (rand <= cumulative) return item;
-      }
-      return items[items.length - 1];
-    }
-
-    // Ruletka tasmasini to'ldirish
-    const track = document.getElementById('track');
-    function initTrack() {
-      track.innerHTML = '';
-      for (let i = 0; i < 60; i++) {
-        let item = getRandomItem();
-        let card = createCardElement(item);
-        track.appendChild(card);
-      }
-    }
-
-    function createCardElement(item) {
-      let card = document.createElement('div');
-      card.className = `card rarity-${item.rarity}`;
-      card.innerHTML = `
-        <img src="${item.img}" alt="skin" onerror="this.src='https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb4d11V4x45fA445RIfLfq3RI328Oc541b654c1bh9795w465431/360fx360f'">
-        <div class="name">${item.name}</div>
-        <div class="price">🪙 ${item.price.toLocaleString()}</div>
-      `;
-      return card;
-    }
-
-    // Keys Ochish Animatsiyasi
-    function openCase() {
-      if (coins < casePrice) {
-        alert("Coin yetarli emas! Tepadagi '+1 000 000 Coin ⚡' tugmasini bosing.");
-        return;
-      }
-
-      coins -= casePrice;
-      saveData();
-      updateUI();
-
-      const btn = document.getElementById('openBtn');
-      btn.disabled = true;
-
-      // Ruletkani joyiga qaytarish
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0px)';
-
-      const winIndex = 45; // 45-karta yutuq bo'ladi
-      const winItem = getRandomItem();
-
-      setTimeout(() => {
-        // Yutuq kartasini qo'yish
-        const cards = track.children;
-        cards[winIndex].className = `card rarity-${winItem.rarity}`;
-        cards[winIndex].innerHTML = `
-          <img src="${winItem.img}" alt="skin">
-          <div class="name">${winItem.name}</div>
-          <div class="price">🪙 ${winItem.price.toLocaleString()}</div>
-        `;
-
-        // Surilish masofasi (Karta kengligi = 108px)
-        const cardWidth = 108;
-        const containerWidth = document.querySelector('.roulette-container').offsetWidth;
-        const targetPos = (winIndex * cardWidth) - (containerWidth / 2) + (cardWidth / 2);
-
-        track.style.transition = 'transform 4s cubic-bezier(0.08, 0.82, 0.17, 1)';
-        track.style.transform = `translateX(-${targetPos}px)`;
-      }, 50);
-
-      // Yutuqni saqlash
-      setTimeout(() => {
-        inventory.unshift(winItem);
-        saveData();
-        renderInventory();
-        btn.disabled = false;
-        initTrack();
-      }, 4200);
-    }
-
-    // Inventarni ko'rsatish
-    function renderInventory() {
-      const invContainer = document.getElementById('inventory');
-      document.getElementById('invCount').innerText = `${inventory.length} buyum`;
-      invContainer.innerHTML = '';
-
-      inventory.forEach(item => {
-        let card = createCardElement(item);
-        invContainer.appendChild(card);
-      });
-    }
-
-    // Boshlang'ich yuklash
-    updateUI();
-    initTrack();
-    renderInventory();
-  </script>
-</body>
-</html>
+    const allCases = caseNamesList.map((name, index) => ({
+      id: index +
