@@ -53,11 +53,11 @@
       padding: 8px 12px;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
     }
 
-    /* Tabs content */
+    /* Tab Content */
     .tab-content {
       display: none;
       padding: 14px;
@@ -68,7 +68,7 @@
     }
 
     .section-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       margin-bottom: 10px;
       color: #94a3b8;
@@ -105,8 +105,8 @@
     }
 
     .case-card img {
-      width: 60px;
-      height: 60px;
+      width: 55px;
+      height: 55px;
       object-fit: contain;
     }
 
@@ -183,8 +183,8 @@
     }
 
     .item-card img {
-      width: 50px;
-      height: 40px;
+      width: 48px;
+      height: 38px;
       object-fit: contain;
     }
 
@@ -243,9 +243,9 @@
       color: white;
       border: none;
       font-size: 8px;
-      padding: 2px 5px;
+      padding: 3px 6px;
       border-radius: 4px;
-      margin-top: 2px;
+      margin-top: 4px;
       cursor: pointer;
     }
 
@@ -262,18 +262,14 @@
       background: #121722;
       border: 2px dashed #2a364f;
       border-radius: 12px;
-      min-height: 120px;
+      min-height: 110px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
-    }
-
-    .upgrade-slot.selected {
-      border-style: solid;
-      border-color: #3b82f6;
+      cursor: pointer;
     }
 
     .chance-badge {
@@ -371,13 +367,13 @@
     <div class="section-title">⚡ Skin Upgrade</div>
     
     <div class="upgrade-box">
-      <div class="upgrade-slot" id="upg-input-slot" onclick="openUpgSelect('input')">
+      <div class="upgrade-slot" onclick="pickUpgInput()">
         <span style="font-size:11px; color:#64748b;">Mening Skinim</span>
-        <div id="upg-input-content" style="margin-top:5px;">Sizning skiningizni tanlang</div>
+        <div id="upg-input-content" style="margin-top:5px; font-size:10px; color:#3b82f6;">Bosib tanlang</div>
       </div>
-      <div class="upgrade-slot" id="upg-target-slot" onclick="openUpgSelect('target')">
+      <div class="upgrade-slot" onclick="pickUpgTarget()">
         <span style="font-size:11px; color:#64748b;">Maqsad Skin</span>
-        <div id="upg-target-content" style="margin-top:5px;">Olinadigan skinni tanlang</div>
+        <div id="upg-target-content" style="margin-top:5px; font-size:10px; color:#ef4444;">Bosib tanlang</div>
       </div>
     </div>
 
@@ -390,7 +386,7 @@
   <div id="tab-contract" class="tab-content">
     <div class="section-title">📜 Trade-up Kontrakt</div>
     <div class="contract-info">
-      <div>Tanlangan skinlar: <b id="contract-count">0</b> / 10</div>
+      <div>Tanlangan: <b id="contract-count">0</b> / 10</div>
       <div style="font-size:11px; color:#ffc107; margin-top:4px;">
         Umumiy qiymat: 🪙 <span id="contract-total">0</span>
       </div>
@@ -408,6 +404,7 @@
   <div id="tab-inventory" class="tab-content">
     <div class="section-title">
       🎒 Inventaringiz (<span id="inv-count">0</span>)
+      <button style="background:none; border:none; color:#ef4444; font-size:10px; cursor:pointer;" onclick="resetAll()">Xotirani tozalash 🔄</button>
     </div>
     <div class="inventory-grid" id="inventory-grid"></div>
   </div>
@@ -426,37 +423,27 @@
       window.Telegram.WebApp.expand();
     }
 
-    // Comprehensive Database
+    // Database
     const globalSkins = [
-      // Knives & Gloves (Gold - Rare)
       { name: "Karambit | Doppler", price: 25000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/karambit_doppler.png" },
       { name: "Butterfly | Slaughter", price: 20000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/butterfly_knife_slaughter.png" },
       { name: "M9 Bayonet | Doppler", price: 18000000, rarity: "gold", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/knives/m9_bayonet_doppler.png" },
-      
-      // Covert (Red)
       { name: "AWP | Dragon Lore", price: 40000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_dragon_lore.png" },
       { name: "M4A4 | Howl", price: 30000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a4_howl.png" },
       { name: "AK-47 | Fire Serpent", price: 10000000, rarity: "red", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/ak-47_fire_serpent.png" },
-      
-      // Classified (Pink)
       { name: "AWP | BOOM", price: 2000000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_boom.png" },
       { name: "Desert Eagle | Printstream", price: 1200000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/desert_eagle_printstream.png" },
       { name: "M4A1-S | Hyper Beast", price: 800000, rarity: "pink", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a1-s_hyper_beast.png" },
-
-      // Restricted (Purple)
       { name: "AK-47 | Redline", price: 450000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/ak-47_redline.png" },
       { name: "Glock-18 | Water Elemental", price: 120000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/glock-18_water_elemental.png" },
-      { name: "A公正 | Atheris", price: 90000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_atheris.png" },
-
-      // Mil-Spec (Blue - Common)
+      { name: "AWP | Atheris", price: 90000, rarity: "purple", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/snipers/awp_atheris.png" },
       { name: "USP-S | Cyrex", price: 25000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/usp-s_cyrex.png" },
       { name: "M4A4 | Evil Daimyo", price: 15000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/rifles/m4a4_evil_daimyo.png" },
       { name: "P250 | Valence", price: 8000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/p250_valence.png" },
       { name: "MP7 | Armor Core", price: 4000, rarity: "blue", img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/smgs/mp7_armor_core.png" }
     ];
 
-    // Generate 50 Cases
-    const caseNamesList = [
+    const caseNames = [
       "Kilowatt Case", "Revolution Case", "Recoil Case", "Dreams & Nightmares", "Snakebite Case",
       "Fracture Case", "Prisma 2 Case", "Prisma Case", "CS20 Case", "Shattered Web Case",
       "Danger Zone Case", "Horizon Case", "Clutch Case", "Spectrum 2 Case", "Spectrum Case",
@@ -469,5 +456,318 @@
       "Operation Wildfire", "Operation Hydra", "Sticker Capsule", "Modular Case", "Olympus Gods"
     ];
 
-    const allCases = caseNamesList.map((name, index) => ({
-      id: index +
+    const allCases = caseNames.map((name, i) => ({
+      id: i + 1,
+      name: name,
+      price: (i + 1) * 3000,
+      img: "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/containers/crate_kilowatt.png",
+      items: globalSkins
+    }));
+
+    // State Variables with Safety
+    let currentBalance = 100000;
+    let inventory = [];
+
+    try {
+      currentBalance = parseInt(localStorage.getItem("cs2_balance")) || 100000;
+      inventory = JSON.parse(localStorage.getItem("cs2_inventory")) || [];
+      if (!Array.isArray(inventory)) inventory = [];
+    } catch (e) {
+      currentBalance = 100000;
+      inventory = [];
+    }
+
+    let activeCase = allCases[0];
+    let isRolling = false;
+    let upgInputItem = null;
+    let upgTargetItem = null;
+    let contractSelected = [];
+
+    // DOM Elements
+    const balanceEl = document.getElementById("balance");
+    const casesGrid = document.getElementById("cases-grid");
+    const activeCaseName = document.getElementById("active-case-name");
+    const activeCasePrice = document.getElementById("active-case-price");
+    const tape = document.getElementById("tape");
+    const openBtn = document.getElementById("open-btn");
+    const inventoryGrid = document.getElementById("inventory-grid");
+    const invCount = document.getElementById("inv-count");
+
+    // Realistic Drop Rates (Low gold rate)
+    function getWeightedRandomSkin(skins) {
+      const rand = Math.random() * 100;
+      let rarity = "blue";
+      if (rand < 0.5) rarity = "gold";
+      else if (rand < 4.0) rarity = "red";
+      else if (rand < 10.0) rarity = "pink";
+      else if (rand < 30.0) rarity = "purple";
+      else rarity = "blue";
+
+      const pool = skins.filter(s => s.rarity === rarity);
+      return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : skins[0];
+    }
+
+    function updateUI() {
+      balanceEl.innerText = (currentBalance || 0).toLocaleString();
+      invCount.innerText = inventory.length;
+      try {
+        localStorage.setItem("cs2_balance", currentBalance);
+        localStorage.setItem("cs2_inventory", JSON.stringify(inventory));
+      } catch(e){}
+      renderInventory();
+    }
+
+    function switchTab(tabName, element) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      element.classList.add('active');
+      if (tabName === 'contract') renderContractInventory();
+    }
+
+    /* --- CASES --- */
+    function renderCases() {
+      casesGrid.innerHTML = "";
+      allCases.forEach((c) => {
+        const card = document.createElement("div");
+        card.className = `case-card ${c.id === activeCase.id ? 'active' : ''}`;
+        card.onclick = () => selectCase(c);
+        card.innerHTML = `
+          <img src="${c.img}">
+          <div class="name">${c.name}</div>
+          <div class="price">🪙 ${c.price.toLocaleString()}</div>
+        `;
+        casesGrid.appendChild(card);
+      });
+    }
+
+    function selectCase(c) {
+      if (isRolling) return;
+      activeCase = c;
+      activeCaseName.innerText = c.name;
+      activeCasePrice.innerText = c.price.toLocaleString();
+      document.getElementById("case-counter").innerText = `${c.id}/50`;
+      renderCases();
+      prepareTape();
+    }
+
+    function prepareTape() {
+      tape.style.transition = "none";
+      tape.style.transform = "translateX(0px)";
+      tape.innerHTML = "";
+
+      for (let i = 0; i < 40; i++) {
+        const item = getWeightedRandomSkin(activeCase.items);
+        const card = document.createElement("div");
+        card.className = `item-card rarity-${item.rarity}`;
+        card.innerHTML = `
+          <img src="${item.img}" onerror="this.src='https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/images/pistols/usp-s_cyrex.png'">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">🪙 ${(item.price || 0).toLocaleString()}</div>
+        `;
+        tape.appendChild(card);
+      }
+    }
+
+    function openCase() {
+      if (isRolling) return;
+      if (currentBalance < activeCase.price) {
+        alert("Balansingiz yetarli emas!");
+        return;
+      }
+
+      currentBalance -= activeCase.price;
+      updateUI();
+      isRolling = true;
+      openBtn.disabled = true;
+
+      prepareTape();
+
+      const winIndex = 28;
+      const wonItem = getWeightedRandomSkin(activeCase.items);
+
+      const cards = tape.children;
+      if (cards[winIndex]) {
+        cards[winIndex].className = `item-card rarity-${wonItem.rarity}`;
+        cards[winIndex].innerHTML = `
+          <img src="${wonItem.img}">
+          <div class="item-name">${wonItem.name}</div>
+          <div class="item-price">🪙 ${(wonItem.price || 0).toLocaleString()}</div>
+        `;
+      }
+
+      const cardWidth = 98;
+      const targetOffset = (winIndex * cardWidth) - (document.querySelector('.roulette-container').offsetWidth / 2) + (cardWidth / 2);
+
+      setTimeout(() => {
+        tape.style.transition = "transform 5s cubic-bezier(0.1, 1, 0.1, 1)";
+        tape.style.transform = `translateX(-${targetOffset}px)`;
+      }, 50);
+
+      setTimeout(() => {
+        inventory.unshift(wonItem);
+        updateUI();
+        isRolling = false;
+        openBtn.disabled = false;
+      }, 5200);
+    }
+
+    /* --- UPGRADE --- */
+    function pickUpgInput() {
+      if (inventory.length === 0) return alert("Inventaringizda skin yo'q!");
+      upgInputItem = inventory[0];
+      document.getElementById("upg-input-content").innerHTML = `<b>${upgInputItem.name}</b><br>🪙 ${(upgInputItem.price || 0).toLocaleString()}`;
+      calcUpgChance();
+    }
+
+    function pickUpgTarget() {
+      upgTargetItem = globalSkins[Math.floor(Math.random() * globalSkins.length)];
+      document.getElementById("upg-target-content").innerHTML = `<b>${upgTargetItem.name}</b><br>🪙 ${(upgTargetItem.price || 0).toLocaleString()}`;
+      calcUpgChance();
+    }
+
+    function calcUpgChance() {
+      if (upgInputItem && upgTargetItem) {
+        let chance = ((upgInputItem.price / upgTargetItem.price) * 100).toFixed(1);
+        if (chance > 90) chance = 90;
+        if (chance < 1) chance = 1;
+        document.getElementById("upg-chance").innerText = `${chance}%`;
+        document.getElementById("upg-btn").disabled = false;
+      }
+    }
+
+    function runUpgrade() {
+      if (!upgInputItem || !upgTargetItem) return;
+
+      let chance = ((upgInputItem.price / upgTargetItem.price) * 100);
+      if (chance > 90) chance = 90;
+      if (chance < 1) chance = 1;
+
+      const idx = inventory.indexOf(upgInputItem);
+      if (idx > -1) inventory.splice(idx, 1);
+
+      if (Math.random() * 100 <= chance) {
+        alert(`🎉 YUTINGIZ! Yangi skin: ${upgTargetItem.name}`);
+        inventory.unshift(upgTargetItem);
+      } else {
+        alert("💥 YUTQAZDINGIZ! Skin kuydi.");
+      }
+
+      upgInputItem = null;
+      upgTargetItem = null;
+      document.getElementById("upg-input-content").innerText = "Bosib tanlang";
+      document.getElementById("upg-target-content").innerText = "Bosib tanlang";
+      document.getElementById("upg-chance").innerText = "0%";
+      document.getElementById("upg-btn").disabled = true;
+
+      updateUI();
+    }
+
+    /* --- KONTRAKT --- */
+    function renderContractInventory() {
+      const grid = document.getElementById("contract-inventory");
+      grid.innerHTML = "";
+      inventory.forEach((item, index) => {
+        const isSelected = contractSelected.includes(index);
+        const card = document.createElement("div");
+        card.className = `item-card rarity-${item.rarity || 'blue'}`;
+        card.style.border = isSelected ? "2px solid #ffc107" : "";
+        card.onclick = () => toggleContractItem(index);
+        card.innerHTML = `
+          <img src="${item.img}">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">🪙 ${(item.price || 0).toLocaleString()}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleContractItem(index) {
+      const pos = contractSelected.indexOf(index);
+      if (pos > -1) contractSelected.splice(pos, 1);
+      else {
+        if (contractSelected.length >= 10) return alert("Maksimum 10 ta skin!");
+        contractSelected.push(index);
+      }
+
+      let total = 0;
+      contractSelected.forEach(i => total += (inventory[i]?.price || 0));
+
+      document.getElementById("contract-count").innerText = contractSelected.length;
+      document.getElementById("contract-total").innerText = total.toLocaleString();
+      document.getElementById("contract-btn").disabled = (contractSelected.length < 10);
+
+      renderContractInventory();
+    }
+
+    function runContract() {
+      if (contractSelected.length < 10) return;
+
+      let totalValue = 0;
+      contractSelected.forEach(i => totalValue += (inventory[i]?.price || 0));
+
+      contractSelected.sort((a, b) => b - a);
+      contractSelected.forEach(i => inventory.splice(i, 1));
+
+      const targetVal = totalValue * 1.15;
+      const wonItem = globalSkins.reduce((prev, curr) => 
+        Math.abs(curr.price - targetVal) < Math.abs(prev.price - targetVal) ? curr : prev
+      );
+
+      inventory.unshift(wonItem);
+      contractSelected = [];
+      
+      document.getElementById("contract-count").innerText = "0";
+      document.getElementById("contract-total").innerText = "0";
+      document.getElementById("contract-btn").disabled = true;
+
+      alert(`📜 KONTRAKT BAJARILDI!\nSkin: ${wonItem.name}`);
+      updateUI();
+      renderContractInventory();
+    }
+
+    /* --- INVENTORY & UTILS --- */
+    function renderInventory() {
+      inventoryGrid.innerHTML = "";
+      inventory.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = `item-card rarity-${item.rarity || 'blue'}`;
+        card.style.minWidth = "auto";
+        card.innerHTML = `
+          <img src="${item.img}">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">🪙 ${(item.price || 0).toLocaleString()}</div>
+          <button class="sell-btn" onclick="sellItem(${index})">Sotish</button>
+        `;
+        inventoryGrid.appendChild(card);
+      });
+    }
+
+    function sellItem(index) {
+      const item = inventory[index];
+      if (item) {
+        currentBalance += item.price || 0;
+        inventory.splice(index, 1);
+        updateUI();
+      }
+    }
+
+    function addAdminCoins() {
+      currentBalance += 1000000;
+      updateUI();
+    }
+
+    function resetAll() {
+      if (confirm("Xotirani tozalab, o'yinni boshqatdan boshlaysizmi?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    // Startup
+    renderCases();
+    prepareTape();
+    updateUI();
+  </script>
+</body>
+</html>
